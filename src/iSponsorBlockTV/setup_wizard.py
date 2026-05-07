@@ -13,6 +13,7 @@ from textual.containers import (
     ScrollableContainer,
     Vertical,
 )
+from textual.content import Content
 from textual.css.query import NoMatches
 from textual.events import Click
 from textual.reactive import reactive
@@ -46,6 +47,9 @@ def _validate_pairing_code(pairing_code: str) -> bool:
     except ValueError:
         return False  # not a number
 
+def escape(text: str) -> Content:
+    """Content ignores markup"""
+    return Content(text)
 
 class ModalWithClickExit(Screen):
     """A modal screen that exits when clicked outside its bounds.
@@ -107,7 +111,7 @@ class Device(Element):
 
     def process_values_from_data(self):
         if "name" in self.element_data and self.element_data["name"]:
-            self.element_name = self.element_data["name"]
+            self.element_name = escape(self.element_data["name"])
         else:
             self.element_name = (
                 "Unnamed device with id "
@@ -121,7 +125,7 @@ class Channel(Element):
 
     def process_values_from_data(self):
         if "name" in self.element_data:
-            self.element_name = self.element_data["name"]
+            self.element_name = escape(self.element_data["name"])
         else:
             self.element_name = f"Unnamed channel with id {self.element_data['channel_id']}"
 
@@ -361,7 +365,7 @@ class AddDevice(ModalWithClickExit):
             self.pairing_can_add = True
             paired_name = paired_device.get("name")
             if paired_name:
-                self.pairing_name_placeholder = f"Device Name ({paired_name})"
+                self.pairing_name_placeholder = f"Device Name ({escape(paired_name)})"
             else:
                 self.pairing_name_placeholder = self.DEFAULT_DEVICE_NAME_PLACEHOLDER
             self.pairing_info_text = "[#00ff00]Pairing code valid"
@@ -418,7 +422,7 @@ class AddDevice(ModalWithClickExit):
                 if device_count == 0:
                     list_widget.clear_options()
                     list_widget.disabled = False
-                list_widget.add_option((device["name"], device_count, False))
+                list_widget.add_option((escape(device["name"]), device_count, False))
                 self.devices_discovered_dial.append(device)
                 device_count += 1
 
@@ -488,7 +492,7 @@ class AddDevice(ModalWithClickExit):
         if paired_device:
             device = {
                 "screen_id": paired_device["screen_id"],
-                "name": device_name if device_name else paired_device.get("name"),
+                "name": device_name if device_name else (paired_device.get("name") or ""),
                 "offset": 0,
             }
             self.query_one("#pairing-code-input").value = ""
