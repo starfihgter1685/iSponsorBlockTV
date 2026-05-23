@@ -13,7 +13,6 @@ skip_categories = (
     ("Music Offtopic", "music_offtopic"),
     ("Interaction", "interaction"),
     ("Exclusive Access", "exclusive_access"),
-    ("POI Highlight", "poi_highlight"),
     ("Preview", "preview"),
     ("Filler", "filler"),
 )

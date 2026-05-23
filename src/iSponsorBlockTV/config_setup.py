@@ -17,7 +17,7 @@ ENTER_API_KEY_PROMPT = "Enter your API key: "
 CHANGE_SKIP_CATEGORIES_PROMPT = "Skip categories already specified. Change them? (y/N) "
 ENTER_SKIP_CATEGORIES_PROMPT = (
     "Enter skip categories (space or comma sepparated) Options: [sponsor,"
-    " selfpromo, exclusive_access, interaction, poi_highlight, intro, outro,"
+    " selfpromo, exclusive_access, interaction, intro, outro,"
     " preview, filler, music_offtopic]:\n"
 )
 WHITELIST_CHANNELS_PROMPT = "Do you want to whitelist any channels from being ad-blocked? (y/N) "
