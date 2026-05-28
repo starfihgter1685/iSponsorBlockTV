@@ -241,11 +241,11 @@ class AddDevice(ModalWithClickExit):
     pairing_name_placeholder = reactive(DEFAULT_DEVICE_NAME_PLACEHOLDER)
     pairing_can_add = reactive(False)
 
-    def __init__(self, config, **kwargs) -> None:
+    def __init__(self, config, web_session, api_helper, **kwargs) -> None:
         super().__init__(**kwargs)
         self.config = config
-        self.web_session = aiohttp.ClientSession(trust_env=config.use_proxy)
-        self.api_helper = api_helpers.ApiHelper(config, self.web_session)
+        self.web_session = web_session
+        self.api_helper = api_helper
         self.devices_discovered_dial = []
         self.discovery_task = None
         self.discovery_generation = 0
@@ -346,8 +346,6 @@ class AddDevice(ModalWithClickExit):
                 await self.pairing_validation_task
             except asyncio.CancelledError:
                 pass
-        if not self.web_session.closed:
-            await self.web_session.close()
 
     async def task_validate_pairing_code(
         self, pairing_code: str, pairing_validation_generation: int
@@ -527,15 +525,11 @@ class AddChannel(ModalWithClickExit):
 
     BINDINGS = [("escape", "dismiss(())", "Return")]
 
-    def __init__(self, config, **kwargs) -> None:
+    def __init__(self, config, web_session, api_helper, **kwargs) -> None:
         super().__init__(**kwargs)
         self.config = config
-        self.web_session = aiohttp.ClientSession(trust_env=config.use_proxy)
-        self.api_helper = api_helpers.ApiHelper(config, self.web_session)
-
-    async def on_unmount(self) -> None:
-        if not self.web_session.closed:
-            await self.web_session.close()
+        self.web_session = web_session
+        self.api_helper = api_helper
 
     def compose(self) -> ComposeResult:
         with Container(id="add-channel-container"):
@@ -771,7 +765,10 @@ class DevicesManager(Vertical):
 
     @on(Button.Pressed, "#add-device")
     def add_device(self, event: Button.Pressed):
-        self.app.push_screen(AddDevice(self.config), callback=self.new_devices)
+        self.app.push_screen(
+            AddDevice(self.config, self.app.web_session, self.app.api_helper),
+            callback=self.new_devices,
+        )
 
     @on(Button.Pressed, "#element-name")
     def edit_channel(self, event: Button.Pressed):
@@ -1009,7 +1006,10 @@ class ChannelWhitelistManager(Vertical):
 
     @on(Button.Pressed, "#add-channel")
     def add_channel(self, event: Button.Pressed):
-        self.app.push_screen(AddChannel(self.config), callback=self.new_channel)
+        self.app.push_screen(
+            AddChannel(self.config, self.app.web_session, self.app.api_helper),
+            callback=self.new_channel,
+        )
 
 
 class AutoPlayManager(Vertical):
@@ -1083,6 +1083,8 @@ class ISponsorBlockTVSetup(App):
         self.dark = True
         self.config = config
         self.initial_config = copy.deepcopy(config)
+        self.web_session = None
+        self.api_helper = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -1110,9 +1112,15 @@ class ISponsorBlockTVSetup(App):
             yield AutoPlayManager(config=self.config, id="autoplay-manager", classes="container")
             yield UseProxyManager(config=self.config, id="useproxy-manager", classes="container")
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
+        self.web_session = aiohttp.ClientSession(trust_env=self.config.use_proxy)
+        self.api_helper = api_helpers.ApiHelper(self.config, self.web_session)
         if self.check_for_old_config_entries():
             self.app.push_screen(MigrationScreen())
+
+    async def on_unmount(self) -> None:
+        if self.web_session and not self.web_session.closed:
+            await self.web_session.close()
 
     def action_save(self) -> None:
         self.config.save()
@@ -1122,7 +1130,7 @@ class ISponsorBlockTVSetup(App):
         if self.config != self.initial_config:
             self.app.push_screen(ExitScreen())
         else:  # No changes were made
-            self.app.exit()
+            self.exit()
 
     def check_for_old_config_entries(self) -> bool:
         if hasattr(self.config, "atvs"):
