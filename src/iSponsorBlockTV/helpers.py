@@ -8,7 +8,7 @@ import rich_click as click
 from appdirs import user_data_dir
 
 from . import config_setup, main, setup_wizard
-from .constants import config_file_blacklist_keys, github_wiki_base_url
+from .constants import config_file_blacklist_keys, github_wiki_base_url, SponsorBlock_api
 
 
 class Device:
@@ -54,6 +54,7 @@ class Config:
         self.auto_play = True
         self.join_name = "iSponsorBlockTV"
         self.use_proxy = False
+        self.sponsorblock_api_url = SponsorBlock_api
         self.__load()
 
     def validate(self):

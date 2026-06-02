@@ -36,7 +36,7 @@ from textual_slider import Slider
 
 # Local imports
 from . import api_helpers
-from .constants import skip_categories
+from .constants import skip_categories, SponsorBlock_api
 
 
 def _validate_pairing_code(pairing_code: str) -> bool:
@@ -1069,6 +1069,34 @@ class UseProxyManager(Vertical):
         self.config.use_proxy = event.checkbox.value
 
 
+class SponsorBlockApiUrlManager(Vertical):
+    """Manager for SponsorBlock API URL."""
+
+    def __init__(self, config, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.config = config
+
+    def compose(self) -> ComposeResult:
+        yield Label("SponsorBlock API URL", classes="title")
+        yield Label(
+            (
+                f"The URL for the SponsorBlock API (default: {SponsorBlock_api})."
+            ),
+            classes="subtitle",
+            id="sponsorblock-api-url-subtitle",
+        )
+        yield Input(
+            placeholder="SponsorBlock API URL",
+            id="sponsorblock-api-url-input",
+            value=self.config.sponsorblock_api_url,
+        )
+
+    @on(Input.Changed, "#sponsorblock-api-url-input")
+    def changed_api_url(self, event: Input.Changed):
+        if event.input.value.strip():
+            self.config.sponsorblock_api_url = event.input.value.strip()
+
+
 class ISponsorBlockTVSetup(App):
     TITLE = "iSponsorBlockTV"
     SUB_TITLE = "Setup Wizard"
@@ -1111,6 +1139,9 @@ class ISponsorBlockTVSetup(App):
             yield ApiKeyManager(config=self.config, id="api-key-manager", classes="container")
             yield AutoPlayManager(config=self.config, id="autoplay-manager", classes="container")
             yield UseProxyManager(config=self.config, id="useproxy-manager", classes="container")
+            yield SponsorBlockApiUrlManager(
+                config=self.config, id="sponsorblock-api-url-manager", classes="container"
+            )
 
     async def on_mount(self) -> None:
         self.web_session = aiohttp.ClientSession(trust_env=self.config.use_proxy)
