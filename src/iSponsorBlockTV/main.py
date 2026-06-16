@@ -155,7 +155,7 @@ def handle_signal(signum, frame):
 
 
 async def main_async(config, debug, http_tracing):
-    loop = asyncio.get_event_loop_policy().get_event_loop()
+    loop = asyncio.get_running_loop()
     tasks = []  # Save the tasks so the interpreter doesn't garbage collect them
     devices = []  # Save the devices to close them later
     if debug:
