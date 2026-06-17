@@ -71,6 +71,7 @@ async def pair_device(config, web_session: aiohttp.ClientSession, api_helper):
         print(f"Failed to pair device: {e}")
         return
 
+
 # skipcq: PY-R1000
 def main(config, debug: bool) -> None:
     print("Welcome to the iSponsorBlockTV cli setup wizard")
