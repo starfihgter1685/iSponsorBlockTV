@@ -281,7 +281,7 @@ async def discover(
 
     # Send out an M-SEARCH request and listening for responses
     family, _ = network.get_best_family(bind, network.PORT)
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     ip_address = get_ip()
     connect = loop.create_datagram_endpoint(handler, family=family, local_addr=(ip_address, None))
     transport, _ = await connect

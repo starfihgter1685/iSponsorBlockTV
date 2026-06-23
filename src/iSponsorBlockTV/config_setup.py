@@ -17,8 +17,8 @@ ENTER_API_KEY_PROMPT = "Enter your API key: "
 CHANGE_SKIP_CATEGORIES_PROMPT = "Skip categories already specified. Change them? (y/N) "
 ENTER_SKIP_CATEGORIES_PROMPT = (
     "Enter skip categories (space or comma sepparated) Options: [sponsor,"
-    " selfpromo, exclusive_access, interaction, poi_highlight, intro, outro,"
-    " preview, filler, music_offtopic]:\n"
+    " selfpromo, exclusive_access, interaction, intro, outro,"
+    " preview, filler, music_offtopic, hook]:\n"
 )
 WHITELIST_CHANNELS_PROMPT = "Do you want to whitelist any channels from being ad-blocked? (y/N) "
 SEARCH_CHANNEL_PROMPT = 'Enter a channel name or "/exit" to exit: '
@@ -75,8 +75,10 @@ def main(config, debug: bool) -> None:
 
     choice = get_yn_input(USE_PROXY_PROMPT)
     config.use_proxy = choice == "y"
-
-    loop = asyncio.get_event_loop_policy().get_event_loop()
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
     web_session = loop.run_until_complete(create_web_session(config.use_proxy))
     if debug:
         loop.set_debug(True)

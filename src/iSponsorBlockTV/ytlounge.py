@@ -97,12 +97,12 @@ class YtLoungeApi(pyytlounge.YtLoungeApi):
         it cancels the current subscription.
         """
         self.watchdog_running = True
-        self.last_event_time = asyncio.get_event_loop().time()
+        self.last_event_time = asyncio.get_running_loop().time()
 
         try:
             while self.watchdog_running:
                 await asyncio.sleep(10)
-                current_time = asyncio.get_event_loop().time()
+                current_time = asyncio.get_running_loop().time()
                 time_since_last_event = current_time - self.last_event_time
 
                 # YouTube sends a message at least every 30 seconds
@@ -153,7 +153,7 @@ class YtLoungeApi(pyytlounge.YtLoungeApi):
     async def _process_event(self, event_type: str, args: List[Any]):
         self.logger.debug(f"process_event({event_type}, {args})")
         # Update last event time for the watchdog
-        self.last_event_time = asyncio.get_event_loop().time()
+        self.last_event_time = asyncio.get_running_loop().time()
 
         # A bunch of events useful to detect ads playing,
         # and the next video before it starts playing

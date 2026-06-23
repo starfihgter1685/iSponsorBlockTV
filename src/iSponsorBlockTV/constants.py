@@ -13,9 +13,9 @@ skip_categories = (
     ("Music Offtopic", "music_offtopic"),
     ("Interaction", "interaction"),
     ("Exclusive Access", "exclusive_access"),
-    ("POI Highlight", "poi_highlight"),
-    ("Preview", "preview"),
+    ("Preview/Recap", "preview"),
     ("Filler", "filler"),
+    ("Hook/Greetings", "hook"),
 )
 
 youtube_client_blacklist = ["TVHTML5_FOR_KIDS"]
