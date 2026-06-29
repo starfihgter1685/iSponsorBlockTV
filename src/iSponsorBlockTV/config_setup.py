@@ -3,6 +3,7 @@ import asyncio
 import aiohttp
 
 from . import api_helpers
+from .constants import SponsorBlock_api
 
 # Constants for user input prompts
 USE_PROXY_PROMPT = "Do you want to use system-wide proxy? (y/N)"
@@ -36,6 +37,7 @@ REPORT_SKIPPED_SEGMENTS_PROMPT = (
 MUTE_ADS_PROMPT = "Do you want to mute native YouTube ads automatically? (y/N) "
 SKIP_ADS_PROMPT = "Do you want to skip native YouTube ads automatically? (y/N) "
 AUTOPLAY_PROMPT = "Do you want to enable autoplay? (Y/n) "
+ENTER_SPONSORBLOCK_API_PROMPT = f"Enter SponsorBlock API URL (default: {SponsorBlock_api}): "
 
 
 def get_yn_input(prompt):
@@ -70,6 +72,7 @@ async def pair_device(config, web_session: aiohttp.ClientSession, api_helper):
         return
 
 
+# skipcq: PY-R1000
 def main(config, debug: bool) -> None:
     print("Welcome to the iSponsorBlockTV cli setup wizard")
 
@@ -205,6 +208,10 @@ def main(config, debug: bool) -> None:
 
     choice = get_yn_input(AUTOPLAY_PROMPT)
     config.auto_play = choice != "n"
+
+    # SponsorBlock API URL
+    api_url = input(ENTER_SPONSORBLOCK_API_PROMPT).strip()
+    config.sponsorblock_api_url = api_url if api_url else SponsorBlock_api
 
     print("Config finished")
     config.save()

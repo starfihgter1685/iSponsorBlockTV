@@ -61,6 +61,7 @@ class ApiHelper:
         self.web_session = web_session
         self.num_devices = len(config.devices)
         self.minimum_skip_length = config.minimum_skip_length
+        self.sponsorblock_api_url = config.sponsorblock_api_url
 
     @staticmethod
     def _normalize_pairing_code(pairing_code):
@@ -192,7 +193,7 @@ class ApiHelper:
             "service": constants.SponsorBlock_service,
         }
         headers = {"Accept": "application/json"}
-        url = constants.SponsorBlock_api + "skipSegments/" + vid_id_hashed
+        url = self.sponsorblock_api_url + "skipSegments/" + vid_id_hashed
         async with self.web_session.get(url, headers=headers, params=params) as response:
             response_json = await response.json()
         if response.status != 200:
@@ -264,7 +265,7 @@ class ApiHelper:
         Lets the contributor know that someone skipped the segment (thanks)"""
         if self.skip_count_tracking:
             for i in uuids:
-                url = constants.SponsorBlock_api + "viewedVideoSponsorTime/"
+                url = self.sponsorblock_api_url + "viewedVideoSponsorTime/"
                 params = {"UUID": i}
                 await self.web_session.post(url, params=params)
 
