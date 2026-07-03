@@ -4,4 +4,4 @@ services:
     container_name: iSponsorBlockTV
     restart: unless-stopped
     volumes:
-      - /PATH_TO_YOUR_DATA_DIR:/app/data
+      - /mnt/m2/docker/isponsorblock:/app/data
